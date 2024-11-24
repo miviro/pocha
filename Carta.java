@@ -34,10 +34,14 @@ public class Carta implements Comparable<Carta> {
 
     @Override
     public int compareTo(Carta otra) {
-        int[] orden = {1, 3, 10, 9, 8, 7, 6, 5, 4, 2}; // orden valores
-        int thisValor = orden[this.valor.ordinal()];
-        int otraValor = orden[otra.valor.ordinal()];
-        return Integer.compare(thisValor, otraValor);
+        Valor[] orden = {Valor.AS, Valor.TRES, Valor.REY, Valor.CABALLO, Valor.SOTA, Valor.SIETE, Valor.SEIS, Valor.CINCO, Valor.CUATRO, Valor.DOS}; // orden valores, el primero es el que más vale
+
+        int pos1 = -1, pos2 = -1;
+        for (int i = 0; i < orden.length; i++) {
+            if (orden[i] == this.valor) pos1 = i;
+            if (orden[i] == otra.valor) pos2 = i;
+        }
+        return Integer.compare(pos2, pos1);
     }
 
     public static Carta pelea(Carta carta1, Carta carta2, Palo triunfo, Palo manda) {

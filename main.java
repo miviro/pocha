@@ -5,6 +5,6 @@ public class Main {
         Partida partida = new Partida(numJugadores);
         partida.imprimirEstado();
         partida.jugarRonda();
-        partida.imprimirEstado();
+        //partida.imprimirEstado();
     }
 }

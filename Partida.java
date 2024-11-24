@@ -17,21 +17,21 @@ public class Partida {
     }
 
     public void jugarRonda() {
-        Carta[] cartasJugadas = new Carta[jugadores.size()];
+        ArrayList<Carta> cartasJugadas = new ArrayList<>();
         for (int i = 0; i < jugadores.size(); i++) {
             if (i == 0) {
                 // La primera carta jugada determina el palo que manda
-                manda = jugadores.get(i).jugarCarta().getPalo();
-                cartasJugadas[i] = jugadores.get(i).jugarCarta();
+                manda = jugadores.get(i).jugarCarta(cartasJugadas, triunfo).getPalo();
+                cartasJugadas.add(jugadores.get(i).jugarCarta(cartasJugadas, triunfo));
             } else {
-                cartasJugadas[i] = jugadores.get(i).jugarCarta();
+                cartasJugadas.add(jugadores.get(i).jugarCarta(cartasJugadas, triunfo));
             }
-            System.out.println(jugadores.get(i).getNombre() + " juega " + cartasJugadas[i]);
+            System.out.println(jugadores.get(i).getNombre() + " juega " + cartasJugadas.get(i));
         }
 
-        Carta ganador = resolverRonda(cartasJugadas);
-        for (int i = 0; i < cartasJugadas.length; i++) {
-            if (cartasJugadas[i].equals(ganador)) {
+        Carta ganador = resolverRonda(cartasJugadas.toArray(new Carta[0]));
+        for (int i = 0; i < cartasJugadas.size(); i++) {
+            if (cartasJugadas.get(i).equals(ganador)) {
                 System.out.println("El ganador de la ronda es " + jugadores.get(i).getNombre());
                 jugadores.get(i).ganoRonda();
                 break;

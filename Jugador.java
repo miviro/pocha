@@ -4,10 +4,23 @@ public class Jugador {
     private String nombre;
     private ArrayList<Carta> mano;
     private int rondasGanadas;
+    private int rondasApostadas;
 
     public Jugador(String nombre) {
         this.nombre = nombre;
         this.mano = new ArrayList<Carta>();
+    }
+
+    public int apostarRondas(int rondasApostadasPorJugadores) {
+        do {
+            rondasApostadas = (int) (Math.random() * (Partida.NUM_RONDAS + 1));
+        } while (rondasApostadas + rondasApostadasPorJugadores == Partida.NUM_RONDAS);
+
+        return rondasApostadas;
+    }
+
+    public int getRondasApostadas() {
+        return rondasApostadas;
     }
 
     public String getNombre() {
@@ -22,13 +35,18 @@ public class Jugador {
         this.mano = mano;
     }
 
-    public Carta jugarCarta(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
-        ArrayList<Carta> cartasPosibles = getCartasPosibles(cartasJugadas, triunfo);
-
+    private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles) {
         return cartasPosibles.remove(0);
     }
 
-    // TODO: Implementar lógica de juego
+    public Carta jugarCarta(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
+        ArrayList<Carta> cartasPosibles = getCartasPosibles(cartasJugadas, triunfo);
+        Carta cartaSeleccionada = seleccionarCarta(cartasPosibles);
+
+        mano.remove(cartaSeleccionada);
+        return cartaSeleccionada;
+    }
+
     private ArrayList<Carta> getCartasPosibles(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
         // Si no hay cartas jugadas, se pueden jugar todas las cartas
         if (cartasJugadas.isEmpty()) {
@@ -121,27 +139,27 @@ public class Jugador {
                         }
                     }
 
-                        Carta maxTriunfoJugado = null;
-                        for (Carta carta : cartasJugadas) {
-                            if (carta.getPalo() == triunfo && 
+                    Carta maxTriunfoJugado = null;
+                    for (Carta carta : cartasJugadas) {
+                        if (carta.getPalo() == triunfo &&
                                 (maxTriunfoJugado == null || carta.compareTo(maxTriunfoJugado) > 0)) {
-                                maxTriunfoJugado = carta;
-                            }
+                            maxTriunfoJugado = carta;
                         }
+                    }
 
-                        ArrayList<Carta> triunfosMasAltos = new ArrayList<Carta>();
-                        for (Carta carta : cartasTriunfo) {
-                            if (maxTriunfoJugado == null || carta.compareTo(maxTriunfoJugado) > 0) {
-                                triunfosMasAltos.add(carta);
-                            }
+                    ArrayList<Carta> triunfosMasAltos = new ArrayList<Carta>();
+                    for (Carta carta : cartasTriunfo) {
+                        if (maxTriunfoJugado == null || carta.compareTo(maxTriunfoJugado) > 0) {
+                            triunfosMasAltos.add(carta);
                         }
+                    }
 
-                        // si no tenemoss triunfo mas altos, podemos jugar todas
-                        if (triunfosMasAltos.isEmpty()) {
-                            return mano;
-                        } else { // si tenemos triunfos mas altos, los podemos jugar
-                            return triunfosMasAltos;
-                        }
+                    // si no tenemoss triunfo mas altos, podemos jugar todas
+                    if (triunfosMasAltos.isEmpty()) {
+                        return mano;
+                    } else { // si tenemos triunfos mas altos, los podemos jugar
+                        return triunfosMasAltos;
+                    }
                 } else {
                     // Si no se jugaron triunfos, podemos jugar cualquier carta
                     ArrayList<Carta> cartasTriunfo = new ArrayList<Carta>();

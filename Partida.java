@@ -2,6 +2,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Partida {
+    // Pensado para solo 4 jugadores, más o menos sobran cartas
+    // y no está implementado el reparto de cartas
+    public final static int NUM_JUGADORES = 4;
+    public final static int NUM_CARTAS = 40;
+    public final static int NUM_RONDAS = NUM_CARTAS / NUM_JUGADORES;
     private ArrayList<Jugador> jugadores;
     private ArrayList<Carta> mazo;
     private Carta.Palo triunfo;
@@ -14,39 +19,44 @@ public class Partida {
         generarMazo();
         barajarMazo();
         repartirCartas();
+        apostarRondas();
     }
 
-    public void jugarRonda() {
+    private void apostarRondas() {
+        int rondasApostadasPorJugadores = 0;
+        for (Jugador jugador : jugadores) {
+            rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores);
+        }
+    }
+
+    private void jugarRonda() {
         ArrayList<Carta> cartasJugadas = new ArrayList<>();
         for (int i = 0; i < jugadores.size(); i++) {
+            Carta carta = jugadores.get(i).jugarCarta(cartasJugadas, triunfo);
             if (i == 0) {
                 // La primera carta jugada determina el palo que manda
-                manda = jugadores.get(i).jugarCarta(cartasJugadas, triunfo).getPalo();
-                cartasJugadas.add(jugadores.get(i).jugarCarta(cartasJugadas, triunfo));
-            } else {
-                cartasJugadas.add(jugadores.get(i).jugarCarta(cartasJugadas, triunfo));
+                manda = carta.getPalo();
             }
-            System.out.println(jugadores.get(i).getNombre() + " juega " + cartasJugadas.get(i));
+            cartasJugadas.add(carta);
+            System.out.println("\t" + jugadores.get(i).getNombre() + " juega " + cartasJugadas.get(i));
         }
 
-        Carta ganador = resolverRonda(cartasJugadas.toArray(new Carta[0]));
-        for (int i = 0; i < cartasJugadas.size(); i++) {
-            if (cartasJugadas.get(i).equals(ganador)) {
-                System.out.println("El ganador de la ronda es " + jugadores.get(i).getNombre());
-                jugadores.get(i).ganoRonda();
-                break;
-            }
-        }
+        int indiceGanador = resolverRonda(cartasJugadas);
+        System.out.println("\t\tEl ganador de la ronda es " + jugadores.get(indiceGanador).getNombre());
+        jugadores.get(indiceGanador).ganoRonda();
     }
 
-    // TODO: devolver indice en vez de carta para no tener que volver a buscar quien
-    // jugo la carta ganadora
-    private Carta resolverRonda(Carta[] cartasJugadas) {
-        Carta ganadora = cartasJugadas[0];
-        for (int i = 1; i < cartasJugadas.length; i++) {
-            ganadora = Carta.pelea(ganadora, cartasJugadas[i], triunfo, manda);
+    private int resolverRonda(ArrayList<Carta> cartasJugadas) {
+        Carta ganadora = cartasJugadas.get(0);
+        int indiceGanador = 0;
+        for (int i = 1; i < cartasJugadas.size(); i++) {
+            Carta nuevaGanadora = Carta.pelea(ganadora, cartasJugadas.get(i), triunfo, manda);
+            if (nuevaGanadora != ganadora) {
+                ganadora = nuevaGanadora;
+                indiceGanador = i;
+            }
         }
-        return ganadora;
+        return indiceGanador;
     }
 
     private void crearJugadores(int numJugadores) {
@@ -81,6 +91,35 @@ public class Partida {
         for (Jugador jugador : jugadores) {
             System.out.println(jugador.getNombre() + ": " + jugador.getMano());
             System.out.println("\tRondas ganadas: " + jugador.getRondasGanadas());
+            System.out.println("\tRondas apostadas: " + jugador.getRondasApostadas());
+        }
+    }
+
+    public void jugarPartida() {
+        for (int i = 0; i < NUM_RONDAS; i++) {
+            System.out.println("Ronda " + (i + 1));
+            imprimirEstado();
+            jugarRonda();
+        }
+
+        System.out.println("Fin de la partida");
+        imprimirResultados();
+    }
+
+    private void imprimirResultados() {
+        System.out.println("\nPuntuación final:");
+        for (Jugador jugador : jugadores) {
+            int rondasGanadas = jugador.getRondasGanadas();
+            int rondasApostadas = jugador.getRondasApostadas();
+            int puntos;
+
+            if (rondasGanadas == rondasApostadas) {
+                puntos = 10 + rondasGanadas * 5;
+            } else {
+                puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
+            }
+
+            System.out.println("\t" + jugador.getNombre() + ": " + puntos + " puntos\n\t\t\tRondas ganadas: " + rondasGanadas + "\n\t\t\tRondas apostadas: " + rondasApostadas);
         }
     }
 }

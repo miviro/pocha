@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Carta implements Comparable<Carta> {
     public static enum Palo {
         OROS, COPAS, ESPADAS, BASTOS
@@ -42,6 +44,23 @@ public class Carta implements Comparable<Carta> {
             if (orden[i] == otra.valor) pos2 = i;
         }
         return Integer.compare(pos2, pos1);
+    }
+
+    public String toJSON() {
+        return "{\"palo\":\"" + palo + "\",\"valor\":\"" + valor + "\"}";
+    }
+
+    public static String serializarCartas(ArrayList<Carta> cartas) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < cartas.size(); i++) {
+            sb.append(cartas.get(i).toJSON());
+            if (i < cartas.size() - 1) {
+            sb.append(",");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     public static Carta pelea(Carta carta1, Carta carta2, Palo triunfo, Palo manda) {

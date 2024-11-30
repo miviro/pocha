@@ -1,4 +1,8 @@
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Jugador {
     private String nombre;
@@ -11,12 +15,29 @@ public class Jugador {
         this.mano = new ArrayList<Carta>();
     }
 
-    public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo) {
-        do {
-            rondasApostadas = (int) (Math.random() * (Partida.NUM_RONDAS + 1));
-        } while (rondasApostadas + rondasApostadasPorJugadores == Partida.NUM_RONDAS);
+    public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
+        try {
+            URL url = new URL("http://localhost:9999/apostarRondas?rondasApostadasPorJugadores=" + rondasApostadasPorJugadores + "&triunfo=" + triunfo + "&NUM_RONDAS=" + NUM_RONDAS + "&mano=" + Carta.serializarCartas(mano) + "&nombre=" + nombre);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
 
-        return rondasApostadas;
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+
+            in.close();
+            conn.disconnect();
+
+            rondasApostadas = Integer.parseInt(content.toString());
+
+            return rondasApostadas;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al apostar rondas");
+        }
     }
 
     public int getRondasApostadas() {
@@ -35,13 +56,33 @@ public class Jugador {
         this.mano = mano;
     }
 
-    private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles) {
-        return cartasPosibles.remove(0);
+    private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
+        try {
+            URL url = new URL("http://localhost:9999/seleccionarCarta?cartasPosibles=" + Carta.serializarCartas(cartasPosibles) + "&cartasJugadas=" + Carta.serializarCartas(cartasJugadas) + "&triunfo=" + triunfo  + "&nombre=" + nombre);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+
+            in.close();
+            conn.disconnect();
+
+            int cartaIndex = Integer.parseInt(content.toString());
+            return cartasPosibles.get(cartaIndex);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al seleccionar carta");
+        }
     }
 
     public Carta jugarCarta(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
         ArrayList<Carta> cartasPosibles = getCartasPosibles(cartasJugadas, triunfo);
-        Carta cartaSeleccionada = seleccionarCarta(cartasPosibles);
+        Carta cartaSeleccionada = seleccionarCarta(cartasPosibles, cartasJugadas, triunfo);
 
         mano.remove(cartaSeleccionada);
         return cartaSeleccionada;

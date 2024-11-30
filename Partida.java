@@ -25,7 +25,12 @@ public class Partida {
     private void apostarRondas() {
         int rondasApostadasPorJugadores = 0;
         for (Jugador jugador : jugadores) {
-            rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores, triunfo);
+            rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores, triunfo, NUM_RONDAS);
+        }
+        // confiamos en que los jugadores respeten las condiciones de numapostadas != numrondas,
+        // pero comprobadmos por si acaso y lanzamos excepción si no se cumple 
+        if (rondasApostadasPorJugadores == NUM_RONDAS) {
+            throw new IllegalStateException("Las rondas apostadas no pueden ser iguales a las rondas totales.");
         }
     }
 
@@ -61,7 +66,7 @@ public class Partida {
 
     private void crearJugadores(int numJugadores) {
         for (int i = 0; i < numJugadores; i++) {
-            jugadores.add(new Jugador("Jugador " + (i + 1)));
+            jugadores.add(new Jugador("Jugador" + (i + 1)));
         }
     }
 

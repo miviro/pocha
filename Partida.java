@@ -25,7 +25,7 @@ public class Partida {
     private void apostarRondas() {
         int rondasApostadasPorJugadores = 0;
         for (Jugador jugador : jugadores) {
-            rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores);
+            rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores, triunfo);
         }
     }
 

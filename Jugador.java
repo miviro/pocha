@@ -11,7 +11,7 @@ public class Jugador {
         this.mano = new ArrayList<Carta>();
     }
 
-    public int apostarRondas(int rondasApostadasPorJugadores) {
+    public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo) {
         do {
             rondasApostadas = (int) (Math.random() * (Partida.NUM_RONDAS + 1));
         } while (rondasApostadas + rondasApostadasPorJugadores == Partida.NUM_RONDAS);

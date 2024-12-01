@@ -66,7 +66,7 @@ def optimize_model(agent, optimizer, memory):
 
 @app.route('/apostarRondas', methods=['GET'])
 def get_rondas_apostadas():
-    nombre = request.args.get('nombre')
+    id = request.args.get('id')
     mano = request.args.get('mano')
     mano = json.loads(mano) if mano else []
     rondasApostadasPorJugadores = request.args.get('rondasApostadasPorJugadores')
@@ -81,7 +81,7 @@ def get_rondas_apostadas():
 
 @app.route('/seleccionarCarta', methods=['GET'])
 def seleccionar_carta():
-    nombre = request.args.get('nombre')
+    id = request.args.get('id')
     cartasPosibles = request.args.get('cartasPosibles')
     cartasPosibles = json.loads(cartasPosibles) if cartasPosibles else []
     cartasJugadas = request.args.get('cartasJugadas')

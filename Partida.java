@@ -48,11 +48,11 @@ public class Partida {
                 manda = carta.getPalo();
             }
             cartasJugadas.add(carta);
-            System.out.println("\t" + jugadores.get(i).getNombre() + " juega " + cartasJugadas.get(i));
+            System.out.println("\t" + "Jugador " + jugadores.get(i).getId() + " juega " + cartasJugadas.get(i));
         }
 
         int indiceGanador = resolverRonda(cartasJugadas);
-        System.out.println("\t\tEl ganador de la ronda es " + jugadores.get(indiceGanador).getNombre());
+        System.out.println("\t\tEl ganador de la ronda es " + "Jugador " + jugadores.get(indiceGanador).getId());
         jugadores.get(indiceGanador).ganoRonda();
     }
 
@@ -71,7 +71,7 @@ public class Partida {
 
     private void crearJugadores(int numJugadores) {
         for (int i = 0; i < numJugadores; i++) {
-            jugadores.add(new Jugador("Jugador" + (i + 1)));
+            jugadores.add(new Jugador(i));
         }
     }
 
@@ -99,7 +99,7 @@ public class Partida {
     public void imprimirEstado() {
         System.out.println("Triunfo: " + triunfo);
         for (Jugador jugador : jugadores) {
-            System.out.println(jugador.getNombre() + ": " + jugador.getMano());
+            System.out.println("Jugador " + jugador.getId() + ": " + jugador.getMano());
             System.out.println("\tRondas ganadas: " + jugador.getRondasGanadas());
             System.out.println("\tRondas apostadas: " + jugador.getRondasApostadas());
         }
@@ -138,8 +138,8 @@ public class Partida {
                 puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
             }
 
-            json.append(String.format("{\"nombre\":\"%s\",\"puntos\":%d}",
-                j.getNombre(), puntos));
+            json.append(String.format("{\"id\":\"%s\",\"puntos\":%d}",
+                j.getId(), puntos));
             if (i < jugadores.size() - 1)
                 json.append(",");
             }
@@ -177,7 +177,7 @@ public class Partida {
                 puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
             }
 
-            System.out.println("\t" + jugador.getNombre() + ": " + puntos + " puntos\n\t\t\tRondas ganadas: "
+            System.out.println("\t" + "Jugador " + jugador.getId() + ": " + puntos + " puntos\n\t\t\tRondas ganadas: "
                     + rondasGanadas + "\n\t\t\tRondas apostadas: " + rondasApostadas);
         }
     }

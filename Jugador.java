@@ -5,21 +5,24 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Jugador {
-    private String nombre;
+    private int id;
     private ArrayList<Carta> mano;
     private int rondasGanadas;
     private int rondasApostadas;
 
-    public Jugador(String nombre) {
-        this.nombre = nombre;
+    public Jugador(int id) {
+        this.id = id;
         this.mano = new ArrayList<Carta>();
     }
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
+        int puertoPersonal = Main.PUERTO_BASE + id;
+        String urlBase = "http://localhost:" + puertoPersonal + "/apostarRondas?";
+
         try {
-            URL url = new URL("http://localhost:5000/apostarRondas?rondasApostadasPorJugadores="
+            URL url = new URL(urlBase + "rondasApostadasPorJugadores="
                     + rondasApostadasPorJugadores + "&triunfo=" + triunfo + "&NUM_RONDAS=" + NUM_RONDAS + "&mano="
-                    + Carta.serializarCartas(mano) + "&nombre=" + nombre);
+                    + Carta.serializarCartas(mano) + "&id=" + id);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -46,8 +49,8 @@ public class Jugador {
         return rondasApostadas;
     }
 
-    public String getNombre() {
-        return nombre;
+    public int getId() {
+        return id;
     }
 
     public ArrayList<Carta> getMano() {
@@ -63,7 +66,7 @@ public class Jugador {
         try {
             URL url = new URL("http://localhost:5000/seleccionarCarta?cartasPosibles="
                     + Carta.serializarCartas(cartasPosibles) + "&cartasJugadas=" + Carta.serializarCartas(cartasJugadas)
-                    + "&triunfo=" + triunfo + "&nombre=" + nombre + "&rondasGanadas=" + rondasGanadas
+                    + "&triunfo=" + triunfo + "&id=" + id + "&rondasGanadas=" + rondasGanadas
                     + "&rondasApostadas=" + rondasApostadas);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");

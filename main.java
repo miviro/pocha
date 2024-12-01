@@ -1,5 +1,6 @@
 public class Main {
     public static final int NUM_PARTIDAS = 100;
+    public static final int PUERTO_BASE = 5000;
     public static void main(String[] args) {
         for (int i = 0; i < NUM_PARTIDAS; i++) {
             if (i % 10 == 0) {

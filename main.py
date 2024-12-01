@@ -18,7 +18,6 @@ app_5003 = create_app()
 for app in [app_5000, app_5001, app_5002, app_5003]:
     @app.route('/apostarRondas', methods=['GET'])
     def get_rondas_apostadas():
-        id = request.args.get('id')
         mano = request.args.get('mano')
         mano = json.loads(mano) if mano else []
         rondasApostadasPorJugadores = request.args.get('rondasApostadasPorJugadores')
@@ -28,7 +27,6 @@ for app in [app_5000, app_5001, app_5002, app_5003]:
 
     @app.route('/seleccionarCarta', methods=['GET'])
     def seleccionar_carta():
-        id = request.args.get('id')
         cartasPosibles = request.args.get('cartasPosibles')
         cartasPosibles = json.loads(cartasPosibles) if cartasPosibles else []
         cartasJugadas = request.args.get('cartasJugadas')

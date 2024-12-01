@@ -25,6 +25,8 @@ def seleccionar_carta():
     cartasJugadas = request.args.get('cartasJugadas')
     cartasJugadas = json.loads(cartasJugadas) if cartasJugadas else []
     triunfo = request.args.get('triunfo')
+    rondasGanadas = request.args.get('rondasGanadas')
+    rondasApostadas = request.args.get('rondasApostadas')
     
     # Implement your logic here
     cartaIndex = 0  # Example logic

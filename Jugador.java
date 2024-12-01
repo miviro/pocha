@@ -17,7 +17,9 @@ public class Jugador {
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
         try {
-            URL url = new URL("http://localhost:9999/apostarRondas?rondasApostadasPorJugadores=" + rondasApostadasPorJugadores + "&triunfo=" + triunfo + "&NUM_RONDAS=" + NUM_RONDAS + "&mano=" + Carta.serializarCartas(mano) + "&nombre=" + nombre);
+            URL url = new URL("http://localhost:9999/apostarRondas?rondasApostadasPorJugadores="
+                    + rondasApostadasPorJugadores + "&triunfo=" + triunfo + "&NUM_RONDAS=" + NUM_RONDAS + "&mano="
+                    + Carta.serializarCartas(mano) + "&nombre=" + nombre);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -56,9 +58,13 @@ public class Jugador {
         this.mano = mano;
     }
 
-    private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
+    private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas,
+            Carta.Palo triunfo) {
         try {
-            URL url = new URL("http://localhost:9999/seleccionarCarta?cartasPosibles=" + Carta.serializarCartas(cartasPosibles) + "&cartasJugadas=" + Carta.serializarCartas(cartasJugadas) + "&triunfo=" + triunfo  + "&nombre=" + nombre);
+            URL url = new URL("http://localhost:9999/seleccionarCarta?cartasPosibles="
+                    + Carta.serializarCartas(cartasPosibles) + "&cartasJugadas=" + Carta.serializarCartas(cartasJugadas)
+                    + "&triunfo=" + triunfo + "&nombre=" + nombre + "&rondasGanadas=" + rondasGanadas
+                    + "&rondasApostadas=" + rondasApostadas);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 

@@ -44,11 +44,11 @@ public class Partida {
                 manda = carta.getPalo();
             }
             cartasJugadas.add(carta);
-            System.out.println("\t" + "Jugador " + jugadores.get(i).getId() + " juega " + cartasJugadas.get(i));
+            // System.out.println("\t" + "Jugador " + jugadores.get(i).getId() + " juega " + cartasJugadas.get(i));
         }
 
         int indiceGanador = resolverRonda(cartasJugadas);
-        System.out.println("\t\tEl ganador de la ronda es " + "Jugador " + jugadores.get(indiceGanador).getId());
+        // System.out.println("\t\tEl ganador de la ronda es " + "Jugador " + jugadores.get(indiceGanador).getId());
         jugadores.get(indiceGanador).ganoRonda();
     }
 
@@ -103,8 +103,8 @@ public class Partida {
 
     public void jugarPartida() {
         for (int i = 0; i < NUM_RONDAS; i++) {
-            System.out.println("Ronda " + (i + 1));
-            imprimirEstado();
+            // System.out.println("Ronda " + (i + 1));
+            //imprimirEstado();
             jugarRonda();
         }
 

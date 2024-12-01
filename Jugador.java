@@ -122,11 +122,6 @@ public class Jugador {
             int responseCode = conn.getResponseCode();
             if (responseCode != 200) {
                 System.err.println("Error al enviar resultados: " + responseCode);
-            } else {
-                java.io.BufferedReader br = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(conn.getInputStream()));
-                String response = br.readLine();
-                System.out.println("Respuesta del servidor: " + response);
             }
         } catch (Exception e) {
             System.err.println("Error de conexión: " + e.getMessage());

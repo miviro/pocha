@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -27,8 +31,9 @@ public class Partida {
         for (Jugador jugador : jugadores) {
             rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores, triunfo, NUM_RONDAS);
         }
-        // confiamos en que los jugadores respeten las condiciones de numapostadas != numrondas,
-        // pero comprobadmos por si acaso y lanzamos excepción si no se cumple 
+        // confiamos en que los jugadores respeten las condiciones de numapostadas !=
+        // numrondas,
+        // pero comprobadmos por si acaso y lanzamos excepción si no se cumple
         if (rondasApostadasPorJugadores == NUM_RONDAS) {
             throw new IllegalStateException("Las rondas apostadas no pueden ser iguales a las rondas totales.");
         }
@@ -109,6 +114,54 @@ public class Partida {
 
         System.out.println("Fin de la partida");
         imprimirResultados();
+        mandarResultados();
+    }
+
+    private void mandarResultados() {
+        try {
+            URL url = new URL("http://localhost:9999/resultados");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            StringBuilder json = new StringBuilder("{\"jugadores\":[");
+            for (int i = 0; i < jugadores.size(); i++) {
+            Jugador j = jugadores.get(i);
+            int rondasGanadas = j.getRondasGanadas();
+            int rondasApostadas = j.getRondasApostadas();
+            int puntos;
+
+            if (rondasGanadas == rondasApostadas) {
+                puntos = 10 + rondasGanadas * 5;
+            } else {
+                puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
+            }
+
+            json.append(String.format("{\"nombre\":\"%s\",\"puntos\":%d}",
+                j.getNombre(), puntos));
+            if (i < jugadores.size() - 1)
+                json.append(",");
+            }
+            json.append("]}");
+
+            try (OutputStream os = conn.getOutputStream()) {
+            os.write(json.toString().getBytes());
+            }
+
+            // Read the response
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+            System.err.println("Error al enviar resultados: " + responseCode);
+            } else {
+            java.io.BufferedReader br = new java.io.BufferedReader(
+                new java.io.InputStreamReader(conn.getInputStream()));
+            String response = br.readLine();
+            System.out.println("Respuesta del servidor: " + response);
+            }
+        } catch (IOException e) {
+            System.err.println("Error de conexión: " + e.getMessage());
+        }
     }
 
     private void imprimirResultados() {
@@ -124,7 +177,8 @@ public class Partida {
                 puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
             }
 
-            System.out.println("\t" + jugador.getNombre() + ": " + puntos + " puntos\n\t\t\tRondas ganadas: " + rondasGanadas + "\n\t\t\tRondas apostadas: " + rondasApostadas);
+            System.out.println("\t" + jugador.getNombre() + ": " + puntos + " puntos\n\t\t\tRondas ganadas: "
+                    + rondasGanadas + "\n\t\t\tRondas apostadas: " + rondasApostadas);
         }
     }
 }

@@ -31,6 +31,19 @@ def seleccionar_carta():
     
     return str(cartaIndex)
 
+@app.route('/resultados', methods=['POST'])
+def recibir_resultados():
+    data = request.get_json()
+    jugadores = data.get('jugadores', [])
+    
+    # Process the jugadores array containing nombre and puntos
+    for jugador in jugadores:
+        nombre = jugador.get('nombre')
+        puntos = jugador.get('puntos')
+        # Process each jugador's data as needed
+        # You can add your logic here, like storing in a database
+        
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     app.run(port=9999)

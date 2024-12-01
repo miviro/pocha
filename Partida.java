@@ -119,7 +119,7 @@ public class Partida {
 
     private void mandarResultados() {
         try {
-            URL url = new URL("http://localhost:9999/resultados");
+            URL url = new URL("http://localhost:5000/resultados");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");

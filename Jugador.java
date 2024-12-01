@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -89,6 +91,46 @@ public class Jugador {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error al seleccionar carta");
+        }
+    }
+
+    public void mandarResultados() { 
+        int puertoPersonal = Main.PUERTO_BASE + id;
+        String urlBase = "http://localhost:" + puertoPersonal + "/resultados?";
+
+        int rondasGanadas = getRondasGanadas();
+        int rondasApostadas = getRondasApostadas();
+        int puntos;
+
+        if (rondasGanadas == rondasApostadas) {
+            puntos = 10 + rondasGanadas * 5;
+        } else {
+            puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
+        }
+
+        try {
+            URL url = new URL(urlBase + "puntos=" + puntos);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write("".getBytes());
+            }
+
+            // Read the response
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                System.err.println("Error al enviar resultados: " + responseCode);
+            } else {
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(conn.getInputStream()));
+                String response = br.readLine();
+                System.out.println("Respuesta del servidor: " + response);
+            }
+        } catch (Exception e) {
+            System.err.println("Error de conexión: " + e.getMessage());
         }
     }
 

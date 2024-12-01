@@ -118,49 +118,8 @@ public class Partida {
     }
 
     private void mandarResultados() {
-        try {
-            URL url = new URL("http://localhost:5000/resultados");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            StringBuilder json = new StringBuilder("{\"jugadores\":[");
-            for (int i = 0; i < jugadores.size(); i++) {
-            Jugador j = jugadores.get(i);
-            int rondasGanadas = j.getRondasGanadas();
-            int rondasApostadas = j.getRondasApostadas();
-            int puntos;
-
-            if (rondasGanadas == rondasApostadas) {
-                puntos = 10 + rondasGanadas * 5;
-            } else {
-                puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
-            }
-
-            json.append(String.format("{\"id\":\"%s\",\"puntos\":%d}",
-                j.getId(), puntos));
-            if (i < jugadores.size() - 1)
-                json.append(",");
-            }
-            json.append("]}");
-
-            try (OutputStream os = conn.getOutputStream()) {
-            os.write(json.toString().getBytes());
-            }
-
-            // Read the response
-            int responseCode = conn.getResponseCode();
-            if (responseCode != 200) {
-            System.err.println("Error al enviar resultados: " + responseCode);
-            } else {
-            java.io.BufferedReader br = new java.io.BufferedReader(
-                new java.io.InputStreamReader(conn.getInputStream()));
-            String response = br.readLine();
-            System.out.println("Respuesta del servidor: " + response);
-            }
-        } catch (IOException e) {
-            System.err.println("Error de conexión: " + e.getMessage());
+        for (Jugador jugador : jugadores) {
+            jugador.mandarResultados();
         }
     }
 

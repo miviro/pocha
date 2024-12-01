@@ -40,12 +40,8 @@ for app in [app_5000, app_5001, app_5002, app_5003]:
 
     @app.route('/resultados', methods=['POST'])
     def recibir_resultados():
-        data = request.get_json()
-        if data and 'jugadores' in data:
-            for jugador in data['jugadores']:
-                id = jugador.get('id')
-                puntos = jugador.get('puntos')
-                print(f"Jugador {id}: {puntos} puntos")
+        puntos = request.args.get('puntos')
+
         return jsonify({"status": "success"})
 
 if __name__ == '__main__':

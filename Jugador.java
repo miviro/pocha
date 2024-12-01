@@ -75,6 +75,7 @@ public class Jugador {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
+            // TODO: falla aqui, creo que por que no tiene suficientes puertos como para jugar todos? java.net.BindException: Address already in use: connect
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String inputLine;
             StringBuilder content = new StringBuilder();

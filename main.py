@@ -37,7 +37,7 @@ class Agent:
         self.port = port
         self.model_filename = f"dqn_model_port_{self.port}.pth"
         self.optimizer_filename = f"dqn_optimizer_port_{self.port}.pth"
-        self.save_interval = 10
+        self.save_interval = 1000
         self.replay_count = 0
         self.load()
 

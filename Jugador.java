@@ -10,37 +10,37 @@ public class Jugador {
     private ArrayList<Carta> mano;
     private int rondasGanadas;
     private int rondasApostadas;
+    private int puertoPersonal;
 
     public Jugador(int id) {
         this.id = id;
         this.mano = new ArrayList<Carta>();
+        this.puertoPersonal = Main.PUERTO_BASE + id;
     }
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
-        int puertoPersonal = Main.PUERTO_BASE + id;
         String urlBase = "http://localhost:" + puertoPersonal + "/apostarRondas?";
 
         try {
             URL url = new URL(urlBase + "rondasApostadasPorJugadores="
                     + rondasApostadasPorJugadores + "&triunfo=" + triunfo + "&NUM_RONDAS=" + NUM_RONDAS + "&id=" + id
-                    + "&mano="
-                    + Carta.serializarCartas(mano));
+                    + "&mano=" + Carta.serializarCartas(mano));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("Connection", "close");
+            
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String inputLine;
+                StringBuilder content = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    content.append(inputLine);
+                }
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String inputLine;
-            StringBuilder content = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
+                rondasApostadas = Integer.parseInt(content.toString());
+                return rondasApostadas;
+            } finally {
+                conn.disconnect();
             }
-
-            in.close();
-            conn.disconnect();
-
-            rondasApostadas = Integer.parseInt(content.toString());
-
-            return rondasApostadas;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error al apostar rondas");
@@ -65,37 +65,38 @@ public class Jugador {
 
     private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas,
             Carta.Palo triunfo) {
-        int puertoPersonal = Main.PUERTO_BASE + id;
         String urlBase = "http://localhost:" + puertoPersonal + "/seleccionarCarta?";
+        HttpURLConnection conn = null;
         try {
             URL url = new URL(urlBase + "cartasPosibles="
                     + Carta.serializarCartas(cartasPosibles) + "&cartasJugadas=" + Carta.serializarCartas(cartasJugadas)
                     + "&triunfo=" + triunfo + "&id=" + id + "&rondasGanadas=" + rondasGanadas
                     + "&rondasApostadas=" + rondasApostadas);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            // TODO: falla aqui, creo que por que no tiene suficientes puertos como para jugar todos? java.net.BindException: Address already in use: connect
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String inputLine;
-            StringBuilder content = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
+            // Use try-with-resources to ensure streams are properly closed
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String inputLine;
+                StringBuilder content = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    content.append(inputLine);
+                }
+
+                int cartaIndex = Integer.parseInt(content.toString());
+                return cartasPosibles.get(cartaIndex);
             }
-
-            in.close();
-            conn.disconnect();
-
-            int cartaIndex = Integer.parseInt(content.toString());
-            return cartasPosibles.get(cartaIndex);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error al seleccionar carta");
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
     }
 
-    public void mandarResultados() { 
-        int puertoPersonal = Main.PUERTO_BASE + id;
+    public void mandarResultados() {
         String urlBase = "http://localhost:" + puertoPersonal + "/resultados?";
 
         int rondasGanadas = getRondasGanadas();
@@ -120,9 +121,13 @@ public class Jugador {
             }
 
             // Read the response
-            int responseCode = conn.getResponseCode();
-            if (responseCode != 200) {
-                System.err.println("Error al enviar resultados: " + responseCode);
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                int responseCode = conn.getResponseCode();
+                if (responseCode != 200) {
+                    System.err.println("Error al enviar resultados: " + responseCode);
+                }
+            } finally {
+                conn.disconnect();
             }
         } catch (Exception e) {
             System.err.println("Error de conexión: " + e.getMessage());

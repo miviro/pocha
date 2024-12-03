@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Jugador {
     private int id;
     private ArrayList<Carta> mano;
+    private ArrayList<Carta> manoInicial;
     private int rondasGanadas;
     private int rondasApostadas;
 
@@ -13,8 +14,30 @@ public class Jugador {
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
         // TODO: RL
-        rondasApostadas = 1;
-        return rondasApostadas;
+        int random_epsilon_compare = (int) (Math.random() * (NUM_RONDAS + 1));
+        ArrayList<Carta> manoInicial = getManoInicial();
+        short[] key = Partida.manoToKey(manoInicial, triunfo);
+        float[] oldValues = Main.generador.map.get(key);
+        int indiceAccion = 0;
+
+        if (random_epsilon_compare > Main.epsilon) {
+            // explotamos
+            float maxValue = Float.NEGATIVE_INFINITY;
+            for (int i = 0; i < oldValues.length; i++) {
+                if (oldValues[i] > maxValue) {
+                    maxValue = oldValues[i];
+                    indiceAccion = i;
+                }
+            }
+        } else { // exploramos
+            indiceAccion = (int) (Math.random() * 10);
+        }
+
+        // decaer epsilon
+        Main.epsilon = (float) (Main.epsilon
+                + (Main.max_epsilon - Main.min_epsilon * Math.exp(-Main.epsilon_decay * Main.currentPartida)));
+
+        return indiceAccion;
     }
 
     public int getRondasApostadas() {
@@ -39,7 +62,7 @@ public class Jugador {
 
     }
 
-    public void mandarResultados() {
+    public int getResultados() {
         int rondasGanadas = getRondasGanadas();
         int rondasApostadas = getRondasApostadas();
         int puntos;
@@ -49,8 +72,7 @@ public class Jugador {
         } else {
             puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
         }
-
-        System.out.println("Jugador " + id + " tiene " + puntos + " puntos.");
+        return puntos;
     }
 
     public Carta jugarCarta(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
@@ -207,6 +229,7 @@ public class Jugador {
 
     public void recibirCarta(Carta carta) {
         mano.add(carta);
+        manoInicial.add(carta);
     }
 
     public void ganoRonda() {
@@ -215,5 +238,9 @@ public class Jugador {
 
     public int getRondasGanadas() {
         return rondasGanadas;
+    }
+
+    public ArrayList<Carta> getManoInicial() {
+        return manoInicial;
     }
 }

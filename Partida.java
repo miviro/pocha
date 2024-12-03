@@ -109,14 +109,74 @@ public class Partida {
         }
 
         System.out.println("Fin de la partida");
-        imprimirResultados();
-        mandarResultados();
+
+        if (Main.currentPartida % 100 == 0) {
+            imprimirResultados();
+        }
+
+        for (Jugador jugador : jugadores) {
+            ArrayList<Carta> manoInicial = jugador.getManoInicial();
+            short[] key = Partida.manoToKey(manoInicial, triunfo);
+            float[] oldValues = Main.generador.map.get(key);
+            int rondasGanadas = jugador.getRondasGanadas();
+
+            // actualizar map
+            // Update the Q-values using the Bellman equation
+            for (int i = 0; i < oldValues.length; i++) {
+                int reward;
+                if (i == rondasGanadas) {
+                    reward = 1;
+                } else {
+                    reward = -1;
+                }
+
+                // TODO: esta bien la formula?
+                oldValues[i] = oldValues[i] + Main.learning_rate
+                        * (reward - oldValues[i]);
+            }
+
+            // Update the map with the new Q-values
+            Main.generador.map.put(key, oldValues);
+        }
     }
 
-    private void mandarResultados() {
-        for (Jugador jugador : jugadores) {
-            jugador.mandarResultados();
+    public static short[] manoToKey(ArrayList<Carta> mano, Carta.Palo triunfo) {
+        short[] key = new short[10];
+        for (Carta carta : mano) {
+            Carta.Valor valor = carta.getValor();
+            Carta.Palo palo = carta.getPalo();
+
+            int indiceBase = triunfo == palo ? 0 : 5;
+
+            switch (valor) {
+                case AS:
+                    key[indiceBase]++;
+                    break;
+
+                case TRES:
+                    key[indiceBase + 1]++;
+                    break;
+
+                case REY:
+                case CABALLO:
+                    key[indiceBase + 2]++;
+                    break;
+
+                case SOTA:
+                case SIETE:
+                    key[indiceBase + 3]++;
+                    break;
+                case SEIS:
+                case CINCO:
+                case CUATRO:
+                case DOS:
+                    key[indiceBase + 4]++;
+                    break;
+                default:
+                    break;
+            }
         }
+        return key;
     }
 
     private void imprimirResultados() {

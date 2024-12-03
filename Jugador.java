@@ -1,50 +1,20 @@
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class Jugador {
     private int id;
     private ArrayList<Carta> mano;
     private int rondasGanadas;
     private int rondasApostadas;
-    private int puertoPersonal;
 
     public Jugador(int id) {
         this.id = id;
         this.mano = new ArrayList<Carta>();
-        this.puertoPersonal = Main.PUERTO_BASE + id;
     }
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
-        String urlBase = "http://localhost:" + puertoPersonal + "/apostarRondas?";
-
-        try {
-            URL url = new URL(urlBase + "rondasApostadasPorJugadores="
-                    + rondasApostadasPorJugadores + "&triunfo=" + triunfo + "&NUM_RONDAS=" + NUM_RONDAS + "&id=" + id
-                    + "&mano=" + Carta.serializarCartas(mano));
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Connection", "close");
-            
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                String inputLine;
-                StringBuilder content = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
-                }
-
-                rondasApostadas = Integer.parseInt(content.toString());
-                return rondasApostadas;
-            } finally {
-                conn.disconnect();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al apostar rondas");
-        }
+        // TODO: RL
+        rondasApostadas = 1;
+        return rondasApostadas;
     }
 
     public int getRondasApostadas() {
@@ -65,40 +35,11 @@ public class Jugador {
 
     private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas,
             Carta.Palo triunfo) {
-        String urlBase = "http://localhost:" + puertoPersonal + "/seleccionarCarta?";
-        HttpURLConnection conn = null;
-        try {
-            URL url = new URL(urlBase + "cartasPosibles="
-                    + Carta.serializarCartas(cartasPosibles) + "&cartasJugadas=" + Carta.serializarCartas(cartasJugadas)
-                    + "&triunfo=" + triunfo + "&id=" + id + "&rondasGanadas=" + rondasGanadas
-                    + "&rondasApostadas=" + rondasApostadas);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
+        return cartasPosibles.get(0);
 
-            // Use try-with-resources to ensure streams are properly closed
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                String inputLine;
-                StringBuilder content = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
-                }
-
-                int cartaIndex = Integer.parseInt(content.toString());
-                return cartasPosibles.get(cartaIndex);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al seleccionar carta");
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
     }
 
     public void mandarResultados() {
-        String urlBase = "http://localhost:" + puertoPersonal + "/resultados?";
-
         int rondasGanadas = getRondasGanadas();
         int rondasApostadas = getRondasApostadas();
         int puntos;
@@ -109,29 +50,7 @@ public class Jugador {
             puntos = -5 * Math.abs(rondasGanadas - rondasApostadas);
         }
 
-        try {
-            URL url = new URL(urlBase + "puntos=" + puntos);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write("".getBytes());
-            }
-
-            // Read the response
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                int responseCode = conn.getResponseCode();
-                if (responseCode != 200) {
-                    System.err.println("Error al enviar resultados: " + responseCode);
-                }
-            } finally {
-                conn.disconnect();
-            }
-        } catch (Exception e) {
-            System.err.println("Error de conexión: " + e.getMessage());
-        }
+        System.out.println("Jugador " + id + " tiene " + puntos + " puntos.");
     }
 
     public Carta jugarCarta(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {

@@ -111,31 +111,32 @@ public class Partida {
             jugarRonda();
         }
 
-        // cada 100 partidas, imprimir resultados y guardar en CSV
-        if (Main.currentPartida % 1000 == 0) {
+        // cada 1000 partidas, imprimir resultados y guardar en CSV
+        if (Pocha.currentPartida % 1000 == 0) {
             imprimirResultados();
-            GeneradorRL.guardarCSV(Main.generador);
+            GeneradorRL.guardarCSV(Pocha.generador);
         }
 
+        // TODO: comentar cuando se implemente la app
         for (Jugador jugador : jugadores) {
             ArrayList<Carta> manoInicial = jugador.getManoInicial();
             short[] key = Partida.manoToKey(manoInicial, triunfo);
-            float[] oldValues = Main.generador.map.get(key);
+            float[] oldValues = Pocha.generador.map.get(key);
             int rondasGanadas = jugador.getRondasGanadas();
 
             // actualizar map
             // Update the Q-values using the Bellman equation
             for (int i = 0; i < oldValues.length; i++) {
                 if (i == rondasGanadas) {
-                    oldValues[i] = oldValues[i] + Main.learning_rate
+                    oldValues[i] = oldValues[i] + Pocha.learning_rate
                             * (1 - oldValues[i]);
                 } else {
-                    oldValues[i] = (1 - Main.learning_rate) * oldValues[i];
+                    oldValues[i] = (1 - Pocha.learning_rate) * oldValues[i];
                 }
             }
 
             // Update the map with the new Q-values
-            Main.generador.map.put(key, oldValues);
+            Pocha.generador.map.put(key, oldValues);
         }
     }
 
@@ -179,7 +180,7 @@ public class Partida {
     }
 
     private void imprimirResultados() {
-        System.out.println("\nRonda " + Main.currentPartida + ":");
+        System.out.println("\nRonda " + Pocha.currentPartida + ":");
         for (Jugador jugador : jugadores) {
             int rondasGanadas = jugador.getRondasGanadas();
             int rondasApostadas = jugador.getRondasApostadas();

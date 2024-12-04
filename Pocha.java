@@ -1,4 +1,4 @@
-public class Main {
+public class Pocha {
     public static GeneradorRL generador = new GeneradorRL();
 
     public static final int NUM_PARTIDAS = 1000000;

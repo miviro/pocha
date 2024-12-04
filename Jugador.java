@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 
 public class Jugador {
-    private int id;
-    private ArrayList<Carta> mano;
-    private ArrayList<Carta> manoInicial;
-    private int rondasGanadas;
-    private int rondasApostadas;
+    protected int id;
+    protected ArrayList<Carta> mano;
+    protected ArrayList<Carta> manoInicial;
+    protected int rondasGanadas;
+    protected int rondasApostadas;
 
     public Jugador(int id) {
         this.id = id;
@@ -15,10 +15,9 @@ public class Jugador {
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS,
             boolean eresElUltimoEnApostar) {
-        // TODO: RL
         ArrayList<Carta> manoInicial = getManoInicial();
         short[] key = Partida.manoToKey(manoInicial, triunfo);
-        float[] oldValues = Main.generador.map.get(key);
+        float[] oldValues = Pocha.generador.map.get(key);
         int indiceAccion = 0;
 
         double rand = Math.random();
@@ -59,7 +58,7 @@ public class Jugador {
         this.mano = mano;
     }
 
-    private Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas,
+    protected Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas,
             Carta.Palo triunfo) {
         return cartasPosibles.get(0);
 
@@ -86,7 +85,7 @@ public class Jugador {
         return cartaSeleccionada;
     }
 
-    private ArrayList<Carta> getCartasPosibles(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
+    protected ArrayList<Carta> getCartasPosibles(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
         // Si no hay cartas jugadas, se pueden jugar todas las cartas
         if (cartasJugadas.isEmpty()) {
             return mano;
@@ -219,7 +218,7 @@ public class Jugador {
         }
     }
 
-    private boolean getSeJugaronTriunfos(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
+    protected boolean getSeJugaronTriunfos(ArrayList<Carta> cartasJugadas, Carta.Palo triunfo) {
         boolean seJugaronTriunfos = false;
         for (Carta carta : cartasJugadas) {
             if (carta.getPalo() == triunfo) {

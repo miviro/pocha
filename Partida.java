@@ -123,16 +123,12 @@ public class Partida {
             // actualizar map
             // Update the Q-values using the Bellman equation
             for (int i = 0; i < oldValues.length; i++) {
-                int reward;
                 if (i == rondasGanadas) {
-                    reward = 1;
+                    oldValues[i] = oldValues[i] + Main.learning_rate
+                            * (1 - oldValues[i]);
                 } else {
-                    reward = -1;
+                    oldValues[i] = (1 - Main.learning_rate) * oldValues[i];
                 }
-
-                // TODO: esta bien la formula?
-                oldValues[i] = oldValues[i] + Main.learning_rate
-                        * (reward - oldValues[i]);
             }
 
             // Update the map with the new Q-values

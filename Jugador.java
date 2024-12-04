@@ -14,28 +14,22 @@ public class Jugador {
 
     public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
         // TODO: RL
-        int random_epsilon_compare = (int) (Math.random() * (NUM_RONDAS + 1));
         ArrayList<Carta> manoInicial = getManoInicial();
         short[] key = Partida.manoToKey(manoInicial, triunfo);
         float[] oldValues = Main.generador.map.get(key);
+
+        double random = Math.random();
+        double cumulativeProbability = 0.0;
         int indiceAccion = 0;
 
-        if (random_epsilon_compare > Main.epsilon) {
-            // explotamos
-            float maxValue = Float.NEGATIVE_INFINITY;
-            for (int i = 0; i < oldValues.length; i++) {
-                if (oldValues[i] > maxValue) {
-                    maxValue = oldValues[i];
-                    indiceAccion = i;
-                }
+        // escoger apuesta segun la probabilidad
+        for (int i = 0; i < oldValues.length; i++) {
+            cumulativeProbability += oldValues[i];
+            if (random <= cumulativeProbability) {
+                indiceAccion = i;
+                break;
             }
-        } else { // exploramos
-            indiceAccion = (int) (Math.random() * 10);
         }
-
-        // decaer epsilon
-        Main.epsilon = (float) (Main.epsilon
-                + (Main.max_epsilon - Main.min_epsilon * Math.exp(-Main.epsilon_decay * Main.currentPartida)));
 
         return indiceAccion;
     }

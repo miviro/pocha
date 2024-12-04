@@ -10,28 +10,37 @@ public class Jugador {
     public Jugador(int id) {
         this.id = id;
         this.mano = new ArrayList<Carta>();
+        this.manoInicial = new ArrayList<Carta>();
     }
 
-    public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS) {
+    public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS,
+            boolean eresElUltimoEnApostar) {
         // TODO: RL
         ArrayList<Carta> manoInicial = getManoInicial();
         short[] key = Partida.manoToKey(manoInicial, triunfo);
         float[] oldValues = Main.generador.map.get(key);
-
-        double random = Math.random();
-        double cumulativeProbability = 0.0;
         int indiceAccion = 0;
 
-        // escoger apuesta segun la probabilidad
+        double rand = Math.random();
+        double cumulativeProbability = 0.0;
         for (int i = 0; i < oldValues.length; i++) {
             cumulativeProbability += oldValues[i];
-            if (random <= cumulativeProbability) {
+            if (rand <= cumulativeProbability) {
                 indiceAccion = i;
                 break;
             }
         }
 
-        return indiceAccion;
+        if ((NUM_RONDAS == indiceAccion + rondasApostadasPorJugadores) && eresElUltimoEnApostar) {
+            if (indiceAccion == 0) {
+                indiceAccion++;
+            } else {
+                indiceAccion--;
+            }
+        }
+
+        rondasApostadas = indiceAccion;
+        return rondasApostadas;
     }
 
     public int getRondasApostadas() {

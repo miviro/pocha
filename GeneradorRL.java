@@ -48,6 +48,7 @@ public class GeneradorRL {
 
         // inicializarCSV(generador);
         cargarCSV(generador);
+        porcentajeEntrenado(generador);
         System.out.println("Acabe");
     }
 
@@ -126,5 +127,18 @@ public class GeneradorRL {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void porcentajeEntrenado(GeneradorRL generador) {
+        int total = 0;
+        int entrenado = 0;
+        for (Map.Entry<short[], float[]> entry : generador.map.entrySet()) {
+            total++;
+            float[] value = entry.getValue();
+            if (value[0] != 0.09090909f) {
+                entrenado++;
+            }
+        }
+        System.out.println("Entrenado: " + entrenado + " de " + total);
     }
 }

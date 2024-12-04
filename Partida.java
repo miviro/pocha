@@ -24,13 +24,16 @@ public class Partida {
 
     private void apostarRondas() {
         int rondasApostadasPorJugadores = 0;
-        for (Jugador jugador : jugadores) {
-            rondasApostadasPorJugadores += jugador.apostarRondas(rondasApostadasPorJugadores, triunfo, NUM_RONDAS);
+        for (int i = 0; i < jugadores.size(); i++) {
+            rondasApostadasPorJugadores += jugadores.get(i).apostarRondas(rondasApostadasPorJugadores, triunfo,
+                    NUM_RONDAS, i == jugadores.size() - 1);
         }
         // confiamos en que los jugadores respeten las condiciones de numapostadas !=
         // numrondas,
         // pero comprobadmos por si acaso y lanzamos excepción si no se cumple
-        if (rondasApostadasPorJugadores == NUM_RONDAS) {
+        if (rondasApostadasPorJugadores == NUM_RONDAS)
+
+        {
             throw new IllegalStateException("Las rondas apostadas no pueden ser iguales a las rondas totales.");
         }
     }
@@ -108,10 +111,10 @@ public class Partida {
             jugarRonda();
         }
 
-        System.out.println("Fin de la partida");
-
-        if (Main.currentPartida % 100 == 0) {
+        // cada 100 partidas, imprimir resultados y guardar en CSV
+        if (Main.currentPartida % 1000 == 0) {
             imprimirResultados();
+            GeneradorRL.guardarCSV(Main.generador);
         }
 
         for (Jugador jugador : jugadores) {
@@ -176,7 +179,7 @@ public class Partida {
     }
 
     private void imprimirResultados() {
-        System.out.println("\nPuntuación final:");
+        System.out.println("\nRonda " + Main.currentPartida + ":");
         for (Jugador jugador : jugadores) {
             int rondasGanadas = jugador.getRondasGanadas();
             int rondasApostadas = jugador.getRondasApostadas();

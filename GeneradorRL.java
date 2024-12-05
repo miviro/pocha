@@ -46,7 +46,7 @@ public class GeneradorRL {
     public static void main(String[] args) {
         GeneradorRL generador = new GeneradorRL();
 
-        // inicializarCSV(generador);
+        //inicializarCSV(generador);
         cargarCSV(generador);
         porcentajeEntrenado(generador);
         System.out.println("Acabe");

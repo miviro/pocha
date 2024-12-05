@@ -51,6 +51,7 @@ public class Partida {
             // cartasJugadas.get(i));
         }
 
+        mandarCartasJugadasAJugadores(cartasJugadas);
         int indiceGanador = resolverRonda(cartasJugadas);
         // System.out.println("\t\tEl ganador de la ronda es " + "Jugador " +
         // jugadores.get(indiceGanador).getId());
@@ -137,6 +138,12 @@ public class Partida {
 
             // Update the map with the new Q-values
             Pocha.generador.map.put(key, oldValues);
+        }
+    }
+
+    private void mandarCartasJugadasAJugadores(ArrayList<Carta> mandarCartasJugadasAJugadores) {
+        for (Jugador jugador : jugadores) {
+            jugador.recibirCartasJugadas(mandarCartasJugadasAJugadores);
         }
     }
 

@@ -47,14 +47,17 @@ public class Partida {
                 manda = carta.getPalo();
             }
             cartasJugadas.add(carta);
-            // System.out.println("\t" + "Jugador " + jugadores.get(i).getId() + " juega " +
-            // cartasJugadas.get(i));
+            // TODO: comentar
+            System.out.println("\t" + "Jugador " + jugadores.get(i).getId() + " juega " +
+            cartasJugadas.get(i));
         }
 
         mandarCartasJugadasAJugadores(cartasJugadas);
         int indiceGanador = resolverRonda(cartasJugadas);
-        // System.out.println("\t\tEl ganador de la ronda es " + "Jugador " +
-        // jugadores.get(indiceGanador).getId());
+        
+        // TODO:comentar
+        System.out.println("\t\tEl ganador de la ronda es " + "Jugador " +
+        jugadores.get(indiceGanador).getId());
         jugadores.get(indiceGanador).ganoRonda();
     }
 
@@ -109,14 +112,17 @@ public class Partida {
 
     public void jugarPartida() {
         for (int i = 0; i < NUM_RONDAS; i++) {
+            imprimirEstado();
             jugarRonda();
+            imprimirResultados();
         }
 
+        // TODO:
         // cada 1000 partidas, imprimir resultados y guardar en CSV
-        if (Pocha.currentPartida % 1000 == 0) {
-            imprimirResultados();
-            GeneradorRL.guardarCSV(Pocha.generador);
-        }
+        //if (Pocha.currentPartida % 1000 == 0) {
+        //    imprimirResultados();
+        //    GeneradorRL.guardarCSV(Pocha.generador);
+        //}
 
         // TODO: comentar cuando se implemente la app
         for (Jugador jugador : jugadores) {

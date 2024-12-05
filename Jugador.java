@@ -84,192 +84,140 @@ public class Jugador {
 
 	protected Carta seleccionarCarta(ArrayList<Carta> cartasPosibles, ArrayList<Carta> cartasJugadas,
 			Carta.Palo triunfo) {
-		boolean quieroGanar = (rondasApostadas - rondasGanadas) > 0;
-		boolean soyPrimero = cartasJugadas.isEmpty();
-		boolean soyUltimo = cartasJugadas.size() == 3;
+		Carta cartaAJugar = null;
 
-		// tengo la carta mayor de algun palo?
-		ArrayList<Carta> cartasMayores = new ArrayList<Carta>();
-		for (Carta.Palo palo : Carta.Palo.values()) {
-			Carta cartaMayor = null;
-			for (Carta carta : mano) {
-				if (carta.getPalo() == palo) {
-					if (cartaMayor == null || carta.compareTo(cartaMayor) > 0) {
-						cartaMayor = carta;
+		outerloop: for (int index = 0; index < 1; index++) {
+
+			boolean quieroGanar = (rondasApostadas - rondasGanadas) > 0;
+			boolean soyPrimero = cartasJugadas.isEmpty();
+			boolean soyUltimo = cartasJugadas.size() == 3;
+
+			// tengo la carta mayor de algun palo?
+			ArrayList<Carta> cartasMayores = new ArrayList<Carta>();
+			for (Carta.Palo palo : Carta.Palo.values()) {
+				Carta cartaMayor = null;
+				for (Carta carta : mano) {
+					if (carta.getPalo() == palo) {
+						if (cartaMayor == null || carta.compareTo(cartaMayor) > 0) {
+							cartaMayor = carta;
+						}
 					}
 				}
-			}
-			if (cartaMayor != null) {
-				cartasMayores.add(cartaMayor);
-			} else {
-				// no tenemos cartas de ese palo
-			}
-		}
-
-		// en cartas mayroes esta la mayor carta que tenemos de cada palo
-		HashMap<Carta, Boolean> tengoCartaMayor = new HashMap<Carta, Boolean>();
-
-		for (Carta carta : cartasMayores) {
-			// comprobar si hay alguna carta de ese palo mayor a la nuestra en cartas vistas
-			boolean tengoLaMayor = true;
-			for (Map.Entry<Carta, Informacion> entry : cartasVistas.entrySet()) {
-				Carta cartaVista = entry.getKey();
-				if (cartaVista.getPalo() == carta.getPalo() && cartaVista.compareTo(carta) > 0) {
-					tengoLaMayor = false;
-					break;
+				if (cartaMayor != null) {
+					cartasMayores.add(cartaMayor);
+				} else {
+					// no tenemos cartas de ese palo
 				}
 			}
-			tengoCartaMayor.put(carta, tengoLaMayor);
-		}
 
-		if (quieroGanar) {
-			if (soyPrimero) {
-				for (Map.Entry<Carta, Boolean> entry : tengoCartaMayor.entrySet()) {
-					Carta carta = entry.getKey();
-					// si tenemos la carta mayor de Carta.palo
-					if (entry.getValue()) {
-						if (carta.getPalo() == triunfo) {
-							return carta;
-						} else {
-							// conseguir todas las cartas vistas del palo del que tenemos la mas alta
-							long jugadasPalo = cartasVistas.entrySet().stream()
-									.filter(e -> e.getValue() == Informacion.JUGADA
-											&& e.getKey().getPalo() == carta.getPalo())
-									.count();
-							// conseguir todos los triunfos que hemos visto jugar
-							long jugadasTriunfos = cartasVistas.entrySet().stream()
-									.filter(e -> e.getValue() == Informacion.JUGADA && e.getKey().getPalo() == triunfo)
-									.count();
-							// valores arbitrarios de cartas jugadas del palo que tenemos la mas alta y
-							// triunfos
-							if (jugadasPalo > 3 && jugadasTriunfos < 7) {
-								for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
-									if (!entry2.getValue()) {
-										Carta.Palo palo = entry2.getKey().getPalo();
+			// en cartas mayroes esta la mayor carta que tenemos de cada palo
+			HashMap<Carta, Boolean> tengoCartaMayor = new HashMap<Carta, Boolean>();
 
-										Carta cartaMasBaja = null;
-										for (Carta carta3 : cartasPosibles) {
-											if (carta3.getPalo() == palo) {
-												if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
-													cartaMasBaja = carta3;
+			for (Carta carta : cartasMayores) {
+				// comprobar si hay alguna carta de ese palo mayor a la nuestra en cartas vistas
+				boolean tengoLaMayor = true;
+				for (Map.Entry<Carta, Informacion> entry : cartasVistas.entrySet()) {
+					Carta cartaVista = entry.getKey();
+					if (cartaVista.getPalo() == carta.getPalo() && cartaVista.compareTo(carta) > 0) {
+						tengoLaMayor = false;
+						break outerloop;
+					}
+				}
+				tengoCartaMayor.put(carta, tengoLaMayor);
+			}
+
+			if (quieroGanar) {
+				if (soyPrimero) {
+					for (Map.Entry<Carta, Boolean> entry : tengoCartaMayor.entrySet()) {
+						Carta carta = entry.getKey();
+						// si tenemos la carta mayor de Carta.palo
+						if (entry.getValue()) {
+							if (carta.getPalo() == triunfo) {
+								cartaAJugar = carta;
+								break outerloop;
+							} else {
+								// conseguir todas las cartas vistas del palo del que tenemos la mas alta
+								long jugadasPalo = cartasVistas.entrySet().stream()
+										.filter(e -> e.getValue() == Informacion.JUGADA
+												&& e.getKey().getPalo() == carta.getPalo())
+										.count();
+								// conseguir todos los triunfos que hemos visto jugar
+								long jugadasTriunfos = cartasVistas.entrySet().stream()
+										.filter(e -> e.getValue() == Informacion.JUGADA
+												&& e.getKey().getPalo() == triunfo)
+										.count();
+								// valores arbitrarios de cartas jugadas del palo que tenemos la mas alta y
+								// triunfos
+								if (jugadasPalo > 3 && jugadasTriunfos < 7) {
+									for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
+										if (!entry2.getValue()) {
+											Carta.Palo palo = entry2.getKey().getPalo();
+
+											Carta cartaMasBaja = null;
+											for (Carta carta3 : cartasPosibles) {
+												if (carta3.getPalo() == palo) {
+													if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
+														cartaMasBaja = carta3;
+													}
 												}
 											}
-										}
-										if (cartaMasBaja != null) {
-											return cartaMasBaja;
-										} else {
-											throw new RuntimeException("No deberia pasar");
+											if (cartaMasBaja != null) {
+												cartaAJugar = cartaMasBaja;
+												break outerloop;
+											} else {
+												throw new RuntimeException("No deberia pasar");
+											}
 										}
 									}
 								}
 							}
 						}
 					}
-				}
-			} else if (soyUltimo) {
-				// si soy el ultimo y quiero ganar, jugar la carta mas baja que gane
-				boolean seHanJugadoTriunfos = getSeJugaronTriunfos(cartasJugadas, triunfo);
+				} else if (soyUltimo) {
+					// si soy el ultimo y quiero ganar, jugar la carta mas baja que gane
+					boolean seHanJugadoTriunfos = getSeJugaronTriunfos(cartasJugadas, triunfo);
 
-				if (seHanJugadoTriunfos) {
-					Carta triunfoMasAlto = null;
-					for (Carta carta : cartasJugadas) {
-						if (carta.getPalo() == triunfo
-								&& (triunfoMasAlto == null || carta.compareTo(triunfoMasAlto) > 0)) {
-							triunfoMasAlto = carta;
-						}
-					}
-
-					for (Carta carta : cartasPosibles) {
-						if (carta.getPalo() == triunfo) {
-							if (carta.compareTo(triunfoMasAlto) > 0) {
-								return carta;
+					if (seHanJugadoTriunfos) {
+						Carta triunfoMasAlto = null;
+						for (Carta carta : cartasJugadas) {
+							if (carta.getPalo() == triunfo
+									&& (triunfoMasAlto == null || carta.compareTo(triunfoMasAlto) > 0)) {
+								triunfoMasAlto = carta;
 							}
 						}
-					}
 
-					// la mas baja del palo que no tengamos ganador
-					for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
-						if (!entry2.getValue()) {
-							Carta.Palo palo = entry2.getKey().getPalo();
+						for (Carta carta : cartasPosibles) {
+							if (carta.getPalo() == triunfo) {
+								if (carta.compareTo(triunfoMasAlto) > 0) {
+									cartaAJugar = carta;
+									break outerloop;
+								}
+							}
+						}
 
-							Carta cartaMasBaja = null;
-							for (Carta carta3 : cartasPosibles) {
-								if (carta3.getPalo() == palo) {
-									if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
-										cartaMasBaja = carta3;
+						// la mas baja del palo que no tengamos ganador
+						for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
+							if (!entry2.getValue()) {
+								Carta.Palo palo = entry2.getKey().getPalo();
+
+								Carta cartaMasBaja = null;
+								for (Carta carta3 : cartasPosibles) {
+									if (carta3.getPalo() == palo) {
+										if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
+											cartaMasBaja = carta3;
+										}
 									}
 								}
-							}
-							if (cartaMasBaja != null) {
-								return cartaMasBaja;
-							}
-						}
-					}
+								if (cartaMasBaja != null) {
+									cartaAJugar = cartaMasBaja;
+									break outerloop;
 
-					for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
-						if (!entry2.getValue()) {
-							Carta cartaMasBaja = null;
-							for (Carta carta3 : cartasPosibles) {
-								if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
-									cartaMasBaja = carta3;
-								}
-							}
-							if (cartaMasBaja != null) {
-								return cartaMasBaja;
-							} else {
-								throw new RuntimeException("No deberia pasar");
-							}
-						}
-					}
-				}
-			} else { // el resto
-				if (!cartasMayores.isEmpty()) {
-					return cartasMayores.get(0);
-				} else {
-					for (Carta carta : cartasMayores) {
-						if (cartasPosibles.contains(carta)) {
-							return carta;
-						}
-					}
-				}
-				// Jugar la carta más baja de cartasPosibles
-				return cartasPosibles.stream().min(Carta::compareTo)
-						.orElseThrow(() -> new RuntimeException("No deberia pasar"));
-			}
-		} else { // no quiero ganar
-			if (soyPrimero) {
-				for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
-					if (!entry2.getValue()) {
-						Carta.Palo palo = entry2.getKey().getPalo();
-
-						Carta cartaMasAlta = null;
-						for (Carta carta3 : cartasPosibles) {
-							if (carta3.getPalo() == palo) {
-								if (cartaMasAlta == null || carta3.compareTo(cartaMasAlta) > 0) {
-									cartaMasAlta = carta3;
 								}
 							}
 						}
-						if (cartaMasAlta != null) {
-							return cartaMasAlta;
-						} else {
-							throw new RuntimeException("No deberia pasar");
-						}
-					}
-				}
-			} else {
-				if (getSeJugaronTriunfos(cartasJugadas, triunfo)) {
-					Carta triunfoMasAlto = null;
-					for (Carta carta : cartasJugadas) {
-						if (carta.getPalo() == triunfo
-								&& (triunfoMasAlto == null || carta.compareTo(triunfoMasAlto) > 0)) {
-							triunfoMasAlto = carta;
-						}
-					}
 
-					for (Carta carta : cartasPosibles) {
-						if (carta.getPalo() == triunfo) {
-							if (carta.compareTo(triunfoMasAlto) > 0) {
+						for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
+							if (!entry2.getValue()) {
 								Carta cartaMasBaja = null;
 								for (Carta carta3 : cartasPosibles) {
 									if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
@@ -277,26 +225,100 @@ public class Jugador {
 									}
 								}
 								if (cartaMasBaja != null) {
-									return cartaMasBaja;
+									cartaAJugar = cartaMasBaja;
+									break outerloop;
+
 								} else {
 									throw new RuntimeException("No deberia pasar");
 								}
 							}
 						}
 					}
+				} else { // el resto
+					if (!cartasMayores.isEmpty()) {
+						if (cartasPosibles.contains(cartasMayores.get(0))) {
+							cartaAJugar = cartasMayores.get(0);
+							break outerloop;
+						}
+					}
+					// Jugar la carta más baja de cartasPosibles
+					cartaAJugar = cartasPosibles.stream().min(Carta::compareTo)
+							.orElseThrow(() -> new RuntimeException("No deberia pasar"));
+					break outerloop;
+				}
+			} else { // no quiero ganar
+				if (soyPrimero) {
+					for (Map.Entry<Carta, Boolean> entry2 : tengoCartaMayor.entrySet()) {
+						if (!entry2.getValue()) {
+							Carta.Palo palo = entry2.getKey().getPalo();
 
-					// si no tenemos triunfos mas altos, jugar la mas alta de cualquier palo
-					if (cartasMayores.isEmpty()) {
-						return cartasPosibles.stream().max(Carta::compareTo)
-								.orElseThrow(() -> new RuntimeException("No deberia pasar"));
-					} else {
-						return cartasMayores.get(0);
+							Carta cartaMasAlta = null;
+							for (Carta carta3 : cartasPosibles) {
+								if (carta3.getPalo() == palo) {
+									if (cartaMasAlta == null || carta3.compareTo(cartaMasAlta) > 0) {
+										cartaMasAlta = carta3;
+									}
+								}
+							}
+							if (cartaMasAlta != null) {
+								cartaAJugar = cartaMasAlta;
+								break outerloop;
+
+							} else {
+								throw new RuntimeException("No deberia pasar");
+							}
+						}
+					}
+				} else {
+					if (getSeJugaronTriunfos(cartasJugadas, triunfo)) {
+						Carta triunfoMasAlto = null;
+						for (Carta carta : cartasJugadas) {
+							if (carta.getPalo() == triunfo
+									&& (triunfoMasAlto == null || carta.compareTo(triunfoMasAlto) > 0)) {
+								triunfoMasAlto = carta;
+							}
+						}
+
+						for (Carta carta : cartasPosibles) {
+							if (carta.getPalo() == triunfo) {
+								if (carta.compareTo(triunfoMasAlto) > 0) {
+									Carta cartaMasBaja = null;
+									for (Carta carta3 : cartasPosibles) {
+										if (cartaMasBaja == null || carta3.compareTo(cartaMasBaja) < 0) {
+											cartaMasBaja = carta3;
+										}
+									}
+									if (cartaMasBaja != null) {
+										cartaAJugar = cartaMasBaja;
+										break outerloop;
+
+									} else {
+										throw new RuntimeException("No deberia pasar");
+									}
+								}
+							}
+						}
+
+						// si no tenemos triunfos mas altos, jugar la mas alta de cualquier palo
+						if (cartasMayores.isEmpty()) {
+							cartaAJugar = cartasPosibles.stream().max(Carta::compareTo)
+									.orElseThrow(() -> new RuntimeException("No deberia pasar"));
+							break outerloop;
+
+						} else {
+							cartaAJugar = cartasMayores.get(0);
+							break outerloop;
+
+						}
 					}
 				}
 			}
 		}
 
-		return cartasPosibles.get(0);
+		if (cartaAJugar == null || !cartasPosibles.contains(cartaAJugar)) {
+			cartaAJugar = cartasPosibles.get(0);
+		}
+		return cartaAJugar;
 	}
 
 	// llamado al final de cada ronda

@@ -62,7 +62,7 @@ public class Partida {
         int indiceGanador = resolverRonda(cartasJugadas);
 
         // System.out.println("\t\tEl ganador de la ronda es " + "Jugador " +
-        // jugadores.get(indiceGanador).getId());
+        // (primeroEnJugar + indiceGanador) % jugadores.size());
         jugadores.get(indiceGanador).ganoRonda();
         return (primeroEnJugar + indiceGanador) % jugadores.size();
     }

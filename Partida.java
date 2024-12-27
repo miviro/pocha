@@ -12,10 +12,12 @@ public class Partida {
     private ArrayList<Carta> mazo;
     private Carta.Palo triunfo;
     private Carta.Palo manda;
+    private int primeroEnJugar;
     private Random random = new Random();
 
     public Partida(int numJugadores) {
         jugadores = new ArrayList<Jugador>();
+        primeroEnJugar = random.nextInt(4);
         crearJugadores(numJugadores);
         mazo = new ArrayList<Carta>();
         generarMazo();
@@ -27,24 +29,25 @@ public class Partida {
     private void apostarRondas() {
         int rondasApostadasPorJugadores = 0;
         for (int i = 0; i < jugadores.size(); i++) {
-            rondasApostadasPorJugadores += jugadores.get(i).apostarRondas(rondasApostadasPorJugadores, triunfo,
+            int jugadorIndex = (primeroEnJugar + i) % jugadores.size();
+            rondasApostadasPorJugadores += jugadores.get(jugadorIndex).apostarRondas(rondasApostadasPorJugadores,
+                    triunfo,
                     NUM_RONDAS, i == jugadores.size() - 1);
         }
+        primeroEnJugar = (primeroEnJugar + 1) % jugadores.size();
         // confiamos en que los jugadores respeten las condiciones de numapostadas !=
         // numrondas,
         // pero comprobadmos por si acaso y lanzamos excepción si no se cumple
-        if (rondasApostadasPorJugadores == NUM_RONDAS)
-
-        {
+        if (rondasApostadasPorJugadores == NUM_RONDAS) {
             throw new IllegalStateException("Las rondas apostadas no pueden ser iguales a las rondas totales.");
         }
     }
 
-    private int jugarRonda(int ganadorRondaAnterior) {
+    private int jugarRonda() {
         ArrayList<Carta> cartasJugadas = new ArrayList<>();
         // Start with the player who won the previous round
         for (int i = 0; i < jugadores.size(); i++) {
-            int jugadorIndex = (ganadorRondaAnterior + i) % jugadores.size();
+            int jugadorIndex = (primeroEnJugar + i) % jugadores.size();
             Carta carta = jugadores.get(jugadorIndex).jugarCarta(cartasJugadas, triunfo);
             if (i == 0) {
                 // La primera carta jugada determina el palo que manda
@@ -61,7 +64,7 @@ public class Partida {
         // System.out.println("\t\tEl ganador de la ronda es " + "Jugador " +
         // jugadores.get(indiceGanador).getId());
         jugadores.get(indiceGanador).ganoRonda();
-        return (ganadorRondaAnterior + indiceGanador) % jugadores.size();
+        return (primeroEnJugar + indiceGanador) % jugadores.size();
     }
 
     private int resolverRonda(ArrayList<Carta> cartasJugadas) {
@@ -106,7 +109,9 @@ public class Partida {
 
     public void imprimirEstado() {
         System.out.println("Triunfo: " + triunfo);
-        for (Jugador jugador : jugadores) {
+        for (int i = 0; i < jugadores.size(); i++) {
+            int jugadorIndex = (primeroEnJugar + i) % jugadores.size();
+            Jugador jugador = jugadores.get(jugadorIndex);
             System.out.println("Jugador " + jugador.getId() + ": " + jugador.getMano());
             System.out.println("\tRondas ganadas: " + jugador.getRondasGanadas());
             System.out.println("\tRondas apostadas: " + jugador.getRondasApostadas());
@@ -114,16 +119,14 @@ public class Partida {
     }
 
     public void jugarPartida() {
-        // TODO: que no sea aleatorio, que sea segun se reparten las cartas
-        int ganadorRondaAnterior = random.nextInt(4); // primero aleatorio
         for (int i = 0; i < NUM_RONDAS; i++) {
             // imprimirEstado();
-            ganadorRondaAnterior = jugarRonda(ganadorRondaAnterior);
+            primeroEnJugar = jugarRonda();
             // imprimirResultados();
         }
 
-        // cada 1000 partidas, imprimir resultados y guardar en CSV
-        if (Pocha.currentPartida % 1000 == 0) {
+        // cada 1000000 partidas, imprimir resultados y guardar en CSV
+        if (Pocha.currentPartida % 1000000 == 0) {
             imprimirResultados();
             GeneradorRL.guardarCSV(Pocha.generador);
         }

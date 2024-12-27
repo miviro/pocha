@@ -29,8 +29,8 @@ public class Jugador {
 
 	public int apostarRondas(int rondasApostadasPorJugadores, Carta.Palo triunfo, int NUM_RONDAS,
 			boolean eresElUltimoEnApostar) {
-		// TODO: borrar estados que no se den despues de muchas partidas (muy raros)
-		// si nos encontramos un estado de esos jugando, usar una formula sencilla
+		// TODO: formula para casos que dan error ( no estan el en map) o no sume 1 las
+		// probabilidades
 		// (triunfos * 3 + demas? )
 		ArrayList<Carta> manoInicial = getManoInicial();
 		short[] key = Partida.manoToKey(manoInicial, triunfo);

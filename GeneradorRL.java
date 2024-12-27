@@ -46,7 +46,7 @@ public class GeneradorRL {
     public static void main(String[] args) {
         GeneradorRL generador = new GeneradorRL();
 
-        //inicializarCSV(generador);
+        // inicializarCSV(generador);
         cargarCSV(generador);
         porcentajeEntrenado(generador);
         System.out.println("Acabe");
@@ -58,12 +58,13 @@ public class GeneradorRL {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 short[] key = new short[10];
-                float[] value = new float[11];
                 for (int i = 0; i < 10; i++) {
                     key[i] = Short.parseShort(parts[i]);
                 }
+                float[] value = new float[11];
+                int valueCount = parts.length - 10;
                 for (int i = 0; i < 11; i++) {
-                    value[i] = Float.parseFloat(parts[10 + i]);
+                    value[i] = (i < valueCount) ? Float.parseFloat(parts[10 + i]) : 0f;
                 }
                 generador.map.put(key, value);
             }
@@ -111,16 +112,41 @@ public class GeneradorRL {
         guardarCSV(generador);
     }
 
+    private static boolean isDefaultProbabilities(float[] values) {
+        for (float v : values) {
+            if (v != 0.09f) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void guardarCSV(GeneradorRL generador) {
         try (FileWriter writer = new FileWriter("output.csv")) {
             for (Map.Entry<short[], float[]> entry : generador.map.entrySet()) {
-                short[] key = entry.getKey();
                 float[] value = entry.getValue();
+                if (isDefaultProbabilities(value)) {
+                    continue;
+                }
+                short[] key = entry.getKey();
                 for (short k : key) {
                     writer.write(k + ",");
                 }
+                int lastNonZeroIndex = -1;
                 for (int i = 0; i < value.length; i++) {
-                    writer.write(value[i] + (i < value.length - 1 ? "," : ""));
+                    if (value[i] != 0f) {
+                        lastNonZeroIndex = i;
+                    }
+                }
+                for (int i = 0; i <= lastNonZeroIndex; i++) {
+                    if (value[i] == 0f) {
+                        writer.write("0");
+                    } else {
+                        writer.write(String.format("%.2f", value[i]).replace("0.", "."));
+                    }
+                    if (i < lastNonZeroIndex) {
+                        writer.write(",");
+                    }
                 }
                 writer.write("\n");
             }
@@ -135,7 +161,8 @@ public class GeneradorRL {
         for (Map.Entry<short[], float[]> entry : generador.map.entrySet()) {
             total++;
             float[] value = entry.getValue();
-            if (value[0] != 0.09090909f) {
+            // solo miramos los primneros valores
+            if (isDefaultProbabilities(value)) {
                 entrenado++;
             }
         }

@@ -31,15 +31,6 @@ public class GeneradorRL {
 
     public Map<ShortArrayKey, float[]> map = new HashMap<>();
 
-    public static void main(String[] args) {
-        GeneradorRL generador = new GeneradorRL();
-
-        // inicializarCSV(generador);
-        cargarCSV(generador);
-        porcentajeEntrenado(generador);
-        System.out.println("Acabe");
-    }
-
     public static void cargarCSV(GeneradorRL generador) {
         try (BufferedReader reader = new BufferedReader(new FileReader("output.csv"))) {
             String line;
@@ -62,63 +53,10 @@ public class GeneradorRL {
         }
     }
 
-    public static void inicializarCSV(GeneradorRL generador) {
-        // Triunfos
-        for (int T1 = 0; T1 < 2; T1++) {
-            for (int T3 = 0; T3 < 2; T3++) {
-                for (int TRC = 0; TRC < 3; TRC++) {
-                    for (int TS7 = 0; TS7 < 3; TS7++) {
-                        for (int T6542 = 0; T6542 < 6; T6542++) {
-                            // No Triunfos (Demas)
-                            for (int D1 = 0; D1 < 5; D1++) {
-                                for (int D3 = 0; D3 < 5; D3++) {
-                                    for (int DRC = 0; DRC < 8; DRC++) {
-                                        for (int DS7 = 0; DS7 < 8; DS7++) {
-                                            for (int D6542 = 0; D6542 < 14; D6542++) {
-                                                int suma = T1 + T3 + TRC + TS7 + T6542 + D1 + D3 + DRC + DS7 + D6542;
-                                                if (suma == 10) {
-                                                    float probabilidad = (float) 1 / (float) 11;
-                                                    generador.map.put(
-                                                            new ShortArrayKey(new short[] { (short) T1, (short) T3,
-                                                                    (short) TRC,
-                                                                    (short) TS7, (short) T6542,
-                                                                    (short) D1, (short) D3, (short) DRC, (short) DS7,
-                                                                    (short) D6542 }),
-                                                            new float[] { probabilidad, probabilidad, probabilidad,
-                                                                    probabilidad, probabilidad, probabilidad,
-                                                                    probabilidad, probabilidad, probabilidad,
-                                                                    probabilidad, probabilidad });
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        guardarCSV(generador);
-    }
-
-    private static boolean isDefaultProbabilities(float[] values) {
-        for (float v : values) {
-            if (v != 0.09f) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static void guardarCSV(GeneradorRL generador) {
         try (FileWriter writer = new FileWriter("output.csv")) {
             for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
                 float[] value = entry.getValue();
-                if (isDefaultProbabilities(value)) {
-                    continue;
-                }
                 short[] key = entry.getKey().getArray();
                 for (short k : key) {
                     writer.write(k + ",");
@@ -144,19 +82,5 @@ public class GeneradorRL {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void porcentajeEntrenado(GeneradorRL generador) {
-        int total = 0;
-        int entrenado = 0;
-        for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
-            total++;
-            float[] value = entry.getValue();
-            // solo miramos los primneros valores
-            if (isDefaultProbabilities(value)) {
-                entrenado++;
-            }
-        }
-        System.out.println("Entrenado: " + entrenado + " de " + total);
     }
 }

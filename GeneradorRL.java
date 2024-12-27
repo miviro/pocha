@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.BufferedReader;
@@ -7,41 +6,30 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class GeneradorRL {
-    public Map<short[], float[]> map = new HashMap<short[], float[]>() {
-        @Override
-        public boolean containsKey(Object key) {
-            if (key instanceof short[]) {
-                for (short[] k : keySet()) {
-                    if (Arrays.equals(k, (short[]) key)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
+    public static class ShortArrayKey {
+        private final short[] array;
+
+        public ShortArrayKey(short[] array) {
+            this.array = array;
+        }
+
+        public short[] getArray() {
+            return array;
         }
 
         @Override
-        public float[] get(Object key) {
-            if (key instanceof short[]) {
-                for (Map.Entry<short[], float[]> entry : entrySet()) {
-                    if (Arrays.equals(entry.getKey(), (short[]) key)) {
-                        return entry.getValue();
-                    }
-                }
-            }
-            return null;
+        public boolean equals(Object o) {
+            return o instanceof ShortArrayKey
+                    && java.util.Arrays.equals(array, ((ShortArrayKey) o).array);
         }
 
         @Override
-        public float[] put(short[] key, float[] value) {
-            for (Map.Entry<short[], float[]> entry : entrySet()) {
-                if (Arrays.equals(entry.getKey(), key)) {
-                    return super.put(entry.getKey(), value);
-                }
-            }
-            return super.put(key, value);
+        public int hashCode() {
+            return java.util.Arrays.hashCode(array);
         }
-    };
+    }
+
+    public Map<ShortArrayKey, float[]> map = new HashMap<>();
 
     public static void main(String[] args) {
         GeneradorRL generador = new GeneradorRL();
@@ -66,7 +54,8 @@ public class GeneradorRL {
                 for (int i = 0; i < 11; i++) {
                     value[i] = (i < valueCount) ? Float.parseFloat(parts[10 + i]) : 0f;
                 }
-                generador.map.put(key, value);
+                ShortArrayKey wrappedKey = new ShortArrayKey(key);
+                generador.map.put(wrappedKey, value);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,10 +78,12 @@ public class GeneradorRL {
                                                 int suma = T1 + T3 + TRC + TS7 + T6542 + D1 + D3 + DRC + DS7 + D6542;
                                                 if (suma == 10) {
                                                     float probabilidad = (float) 1 / (float) 11;
-                                                    generador.map.put(new short[] { (short) T1, (short) T3, (short) TRC,
-                                                            (short) TS7, (short) T6542,
-                                                            (short) D1, (short) D3, (short) DRC, (short) DS7,
-                                                            (short) D6542 },
+                                                    generador.map.put(
+                                                            new ShortArrayKey(new short[] { (short) T1, (short) T3,
+                                                                    (short) TRC,
+                                                                    (short) TS7, (short) T6542,
+                                                                    (short) D1, (short) D3, (short) DRC, (short) DS7,
+                                                                    (short) D6542 }),
                                                             new float[] { probabilidad, probabilidad, probabilidad,
                                                                     probabilidad, probabilidad, probabilidad,
                                                                     probabilidad, probabilidad, probabilidad,
@@ -123,12 +114,12 @@ public class GeneradorRL {
 
     public static void guardarCSV(GeneradorRL generador) {
         try (FileWriter writer = new FileWriter("output.csv")) {
-            for (Map.Entry<short[], float[]> entry : generador.map.entrySet()) {
+            for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
                 float[] value = entry.getValue();
                 if (isDefaultProbabilities(value)) {
                     continue;
                 }
-                short[] key = entry.getKey();
+                short[] key = entry.getKey().getArray();
                 for (short k : key) {
                     writer.write(k + ",");
                 }
@@ -158,7 +149,7 @@ public class GeneradorRL {
     public static void porcentajeEntrenado(GeneradorRL generador) {
         int total = 0;
         int entrenado = 0;
-        for (Map.Entry<short[], float[]> entry : generador.map.entrySet()) {
+        for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
             total++;
             float[] value = entry.getValue();
             // solo miramos los primneros valores

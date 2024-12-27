@@ -132,7 +132,11 @@ public class Partida {
         for (Jugador jugador : jugadores) {
             ArrayList<Carta> manoInicial = jugador.getManoInicial();
             short[] key = Partida.manoToKey(manoInicial, triunfo);
-            float[] oldValues = Pocha.generador.map.get(key);
+            float[] oldValues = Pocha.generador.map.get(new GeneradorRL.ShortArrayKey(key));
+            if (oldValues == null) {
+                // init oldValues to default probabilities
+                oldValues = new float[] { 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f };
+            }
             int rondasGanadas = jugador.getRondasGanadas();
 
             // actualizar map
@@ -147,7 +151,7 @@ public class Partida {
             }
 
             // Update the map with the new Q-values
-            Pocha.generador.map.put(key, oldValues);
+            Pocha.generador.map.put(new GeneradorRL.ShortArrayKey(key), oldValues);
         }
     }
 

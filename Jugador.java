@@ -32,19 +32,37 @@ public class Jugador {
 		// TODO: formula para casos que dan error ( no estan el en map) o no sume 1 las
 		// probabilidades
 		// (triunfos * 3 + demas? )
-		ArrayList<Carta> manoInicial = getManoInicial();
-		short[] key = Partida.manoToKey(manoInicial, triunfo);
-		float[] oldValues = Pocha.generador.map.get(key);
-		int indiceAccion = 0;
 
-		double rand = Math.random();
-		double cumulativeProbability = 0.0;
-		for (int i = 0; i < oldValues.length; i++) {
-			cumulativeProbability += oldValues[i];
-			if (rand <= cumulativeProbability) {
-				indiceAccion = i;
-				break;
+		int indiceAccion = 0;
+		try { // funcionamiento normal, casos que se han entrenado
+			ArrayList<Carta> manoInicial = getManoInicial();
+			short[] key = Partida.manoToKey(manoInicial, triunfo);
+			float[] oldValues = Pocha.generador.map.get(new GeneradorRL.ShortArrayKey(key));
+
+			double rand = Math.random();
+			double cumulativeProbability = 0.0;
+			for (int i = 0; i < oldValues.length; i++) {
+				cumulativeProbability += oldValues[i];
+				if (rand <= cumulativeProbability) {
+					indiceAccion = i;
+					break;
+				}
 			}
+
+		} catch (Exception e) {
+			// casos que no se han entrenado
+			// formula para casos que dan error
+			// muy sencilla ya que es muy raro darse
+			int triunfos = 0;
+			int demas = 0;
+			for (Carta carta : mano) {
+				if (carta.getPalo() == triunfo) {
+					triunfos++;
+				} else {
+					demas++;
+				}
+			}
+			indiceAccion = (triunfos * 3 + demas) / 5;
 		}
 
 		if ((NUM_RONDAS == indiceAccion + rondasApostadasPorJugadores) && eresElUltimoEnApostar) {

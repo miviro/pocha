@@ -71,16 +71,24 @@ public class GeneradorRL {
             for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
                 short[] key = entry.getKey().getArray();
                 float[] value = entry.getValue();
+
                 // Write key digits
                 for (short k : key) {
                     sb.append(k);
                 }
-                // Write only non-zero float values
+
+                // Find last non-zero value
+                int lastNonZero = -1;
                 for (int i = 0; i < value.length; i++) {
-                    int intVal = (int) (value[i] * 100);
-                    if (intVal != 0) {
-                        sb.append(String.format("%02d", intVal));
+                    if ((int) (value[i] * 100) != 0) {
+                        lastNonZero = i;
                     }
+                }
+
+                // Write values up to last non-zero
+                for (int i = 0; i <= lastNonZero; i++) {
+                    int intVal = (int) (value[i] * 100);
+                    sb.append(String.format("%02d", intVal));
                 }
                 sb.append("\n");
             }

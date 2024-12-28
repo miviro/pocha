@@ -48,8 +48,7 @@ public class GeneradorRL {
                 // Next pairs => float[] value
                 float[] value = new float[11];
                 int valueIndex = 0;
-                int length = line.length();
-                for (int i = 10; i + 1 < length && valueIndex < 11; i += 2) {
+                for (int i = 10; i + 1 < 32 && valueIndex < 11; i += 2) {
                     int intVal = (line.charAt(i) - '0') * 10 + (line.charAt(i + 1) - '0');
                     value[valueIndex++] = intVal / 100f;
                 }
@@ -71,22 +70,11 @@ public class GeneradorRL {
             for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
                 short[] key = entry.getKey().getArray();
                 float[] value = entry.getValue();
-
                 // Write key digits
                 for (short k : key) {
                     sb.append(k);
                 }
-
-                // Find last non-zero value
-                int lastNonZero = -1;
                 for (int i = 0; i < value.length; i++) {
-                    if ((int) (value[i] * 100) != 0) {
-                        lastNonZero = i;
-                    }
-                }
-
-                // Write values up to last non-zero
-                for (int i = 0; i <= lastNonZero; i++) {
                     int intVal = (int) (value[i] * 100);
                     sb.append(String.format("%02d", intVal));
                 }

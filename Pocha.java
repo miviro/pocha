@@ -8,11 +8,10 @@ public class Pocha {
 
     public static void main(String[] args) {
         GeneradorRL.cargarCSV(generador);
-        for (int i = 0; i < NUM_PARTIDAS; i++) {
+        while (true) {
             Partida partida = new Partida(Partida.NUM_JUGADORES);
             partida.jugarPartida();
             currentPartida++;
         }
-        GeneradorRL.guardarCSV(generador);
     }
 }

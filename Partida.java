@@ -63,7 +63,7 @@ public class Partida {
 
         // System.out.println("\t\tEl ganador de la ronda es " + "Jugador " +
         // (primeroEnJugar + indiceGanador) % jugadores.size());
-        jugadores.get(indiceGanador).ganoRonda();
+        jugadores.get((primeroEnJugar + indiceGanador) % jugadores.size()).ganoRonda();
         return (primeroEnJugar + indiceGanador) % jugadores.size();
     }
 

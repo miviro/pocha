@@ -126,42 +126,46 @@ public class Partida {
         }
 
         // cada 1000000 partidas, imprimir resultados y guardar en CSV
-        if (Pocha.currentPartida % 100000 == 0 && Pocha.currentPartida != 0) {
-            imprimirResultados();
-            GeneradorRL.guardarCSV(Pocha.generador);
-        }
-
         // TODO: comentar cuando se implemente la app
-        for (Jugador jugador : jugadores) {
-            ArrayList<Carta> manoInicial = jugador.getManoInicial();
-            short[] key = Partida.manoToKey(manoInicial, triunfo);
-            float[] oldValues = Pocha.generador.map.get(new GeneradorRL.ShortArrayKey(key));
-            if (oldValues == null) {
-                // init oldValues to default probabilities
-
-                System.out
-                        .println("Primer caso " + key[0] + key[1] + key[2] + key[3] + key[4] + key[5]
-                                + key[6] + key[7]
-                                + key[8] + key[9]);
-
-                oldValues = new float[] { 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f };
-            }
-            int rondasGanadas = jugador.getRondasGanadas();
-
-            // actualizar map
-            // Update the Q-values using the Bellman equation
-            for (int i = 0; i < oldValues.length; i++) {
-                if (i == rondasGanadas) {
-                    oldValues[i] = oldValues[i] + Pocha.learning_rate
-                            * (1 - oldValues[i]);
-                } else {
-                    oldValues[i] = (1 - Pocha.learning_rate) * oldValues[i];
-                }
-            }
-
-            // Update the map with the new Q-values
-            Pocha.generador.map.put(new GeneradorRL.ShortArrayKey(key), oldValues);
-        }
+        /*
+         * if (Pocha.currentPartida % 100000 == 0 && Pocha.currentPartida != 0) {
+         * imprimirResultados();
+         * GeneradorRL.guardarCSV(Pocha.generador);
+         * }
+         * 
+         * for (Jugador jugador : jugadores) {
+         * ArrayList<Carta> manoInicial = jugador.getManoInicial();
+         * short[] key = Partida.manoToKey(manoInicial, triunfo);
+         * float[] oldValues = Pocha.generador.map.get(new
+         * GeneradorRL.ShortArrayKey(key));
+         * if (oldValues == null) {
+         * // init oldValues to default probabilities
+         * 
+         * System.out
+         * .println("Primer caso " + key[0] + key[1] + key[2] + key[3] + key[4] + key[5]
+         * + key[6] + key[7]
+         * + key[8] + key[9]);
+         * 
+         * oldValues = new float[] { 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f, 0.09f,
+         * 0.09f, 0.09f, 0.09f, 0.09f };
+         * }
+         * int rondasGanadas = jugador.getRondasGanadas();
+         * 
+         * // actualizar map
+         * // Update the Q-values using the Bellman equation
+         * for (int i = 0; i < oldValues.length; i++) {
+         * if (i == rondasGanadas) {
+         * oldValues[i] = oldValues[i] + Pocha.learning_rate
+         * (1 - oldValues[i]);
+         * } else {
+         * oldValues[i] = (1 - Pocha.learning_rate) * oldValues[i];
+         * }
+         * }
+         * 
+         * // Update the map with the new Q-values
+         * Pocha.generador.map.put(new GeneradorRL.ShortArrayKey(key), oldValues);
+         * }
+         */
     }
 
     private void mandarCartasJugadasAJugadores(ArrayList<Carta> mandarCartasJugadasAJugadores) {

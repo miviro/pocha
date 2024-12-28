@@ -31,54 +31,60 @@ public class GeneradorRL {
 
     public Map<ShortArrayKey, float[]> map = new HashMap<>();
 
+    // guardar como int y dividir por 100.0f es mas rapido que parseFloat
     public static void cargarCSV(GeneradorRL generador) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("output.csv"))) {
+        long startTime = System.nanoTime();
+
+        // Adjust buffer size if needed, e.g. 8192 or larger if the file is big
+        try (BufferedReader reader = new BufferedReader(new FileReader("output.csv"), 8192)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
+                // First 10 chars => short[] key
                 short[] key = new short[10];
                 for (int i = 0; i < 10; i++) {
-                    key[i] = Short.parseShort(parts[i]);
+                    key[i] = (short) (line.charAt(i) - '0');
                 }
+
+                // Next pairs => float[] value
                 float[] value = new float[11];
-                int valueCount = parts.length - 10;
-                for (int i = 0; i < 11; i++) {
-                    value[i] = (i < valueCount) ? Float.parseFloat(parts[10 + i]) : 0f;
+                int valueIndex = 0;
+                int length = line.length();
+                for (int i = 10; i + 1 < length && valueIndex < 11; i += 2) {
+                    int intVal = (line.charAt(i) - '0') * 10 + (line.charAt(i + 1) - '0');
+                    value[valueIndex++] = intVal / 100f;
                 }
-                ShortArrayKey wrappedKey = new ShortArrayKey(key);
-                generador.map.put(wrappedKey, value);
+
+                // Insert into map
+                generador.map.put(new ShortArrayKey(key), value);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        long endTime = System.nanoTime();
+        System.out.println("Loading CSV took: " + (endTime - startTime) / 1_000_000 + " ms");
     }
 
     public static void guardarCSV(GeneradorRL generador) {
         try (FileWriter writer = new FileWriter("output.csv")) {
+            StringBuilder sb = new StringBuilder();
             for (Map.Entry<ShortArrayKey, float[]> entry : generador.map.entrySet()) {
-                float[] value = entry.getValue();
                 short[] key = entry.getKey().getArray();
+                float[] value = entry.getValue();
+                // Write key digits
                 for (short k : key) {
-                    writer.write(k + ",");
+                    sb.append(k);
                 }
-                int lastNonZeroIndex = -1;
+                // Write only non-zero float values
                 for (int i = 0; i < value.length; i++) {
-                    if (value[i] != 0f) {
-                        lastNonZeroIndex = i;
+                    int intVal = (int) (value[i] * 100);
+                    if (intVal != 0) {
+                        sb.append(String.format("%02d", intVal));
                     }
                 }
-                for (int i = 0; i <= lastNonZeroIndex; i++) {
-                    if (value[i] == 0f) {
-                        writer.write("0");
-                    } else {
-                        writer.write(String.format("%.2f", value[i]).replace("0.", "."));
-                    }
-                    if (i < lastNonZeroIndex) {
-                        writer.write(",");
-                    }
-                }
-                writer.write("\n");
+                sb.append("\n");
             }
+            writer.write(sb.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
